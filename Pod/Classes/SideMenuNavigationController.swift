@@ -127,7 +127,7 @@ open class SideMenuNavigationController: UINavigationController {
 
     /// Delegate for receiving appear and disappear related events. If `nil` the visible view controller that displays a `SideMenuNavigationController` automatically receives these events.
     public weak var sideMenuDelegate: SideMenuNavigationControllerDelegate?
-
+    public var panOffset: CGFloat = 0
     /// The swipe to dismiss gesture.
     open private(set) weak var swipeToDismissGesture: UIPanGestureRecognizer? = nil
     /// The tap to dismiss gesture.
@@ -476,7 +476,7 @@ internal extension SideMenuNavigationController {
 
     func handleMenuPan(_ gesture: UIPanGestureRecognizer, _ presenting: Bool) {
         let width = menuWidth
-        let distance = gesture.xTranslation / width
+        let distance = (presenting && panOffset > 0 ? min(gesture.xTranslation + panOffset,0) : gesture.xTranslation) / width
         let progress = max(min(distance * factor(presenting), 1), 0)
         switch (gesture.state) {
         case .began:

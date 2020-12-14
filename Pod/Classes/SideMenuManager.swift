@@ -40,7 +40,7 @@ public class SideMenuManager: NSObject {
     private var _rightMenu: Protected<Menu?> = Protected(nil) { SideMenuManager.setMenu(fromMenu: $0, toMenu: $1) }
 
     private var switching: Bool = false
-
+    public var canSwipe : ((UIScreenEdgePanGestureRecognizer)->(Bool))?
     /// Default instance of SideMenuManager.
     public static let `default` = SideMenuManager()
 
@@ -136,7 +136,7 @@ internal extension SideMenuManager {
     }
 }
 
-private extension SideMenuManager {
+extension SideMenuManager {
 
     @objc func handlePresentMenuScreenEdge(_ gesture: UIScreenEdgePanGestureRecognizer) {
         handleMenuPan(gesture)
@@ -147,6 +147,7 @@ private extension SideMenuManager {
     }
 
     func handleMenuPan(_ gesture: UIPanGestureRecognizer) {
+        
         if let activeMenu = activeMenu {
             let width = activeMenu.menuWidth
             let distance = gesture.xTranslation / width
@@ -164,6 +165,8 @@ private extension SideMenuManager {
             }
 
         } else {
+            guard canSwipe == nil || canSwipe!(gesture as! UIScreenEdgePanGestureRecognizer) else{return}
+            
             let leftSide: Bool
             if let gesture = gesture as? UIScreenEdgePanGestureRecognizer {
                 leftSide = gesture.edges.contains(.left)
@@ -177,7 +180,7 @@ private extension SideMenuManager {
             menu.present(from: topMostViewController, interactively: true)
         }
 
-        activeMenu?.handleMenuPan(gesture, true)
+        activeMenu?.handleMenuPan(gesture, true )
     }
 
     var activeMenu: Menu? {
